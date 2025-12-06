@@ -1,0 +1,2541 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Elegance - Украшения ручной работы</title>
+    
+    <!-- Иконки -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Leaflet CSS для карт -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    
+    <!-- Chart.js для графиков -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <!-- Стили -->
+    <style>
+        /* Общие стили */
+        :root {
+            --pastel-pink: #FFD6E7;
+            --pastel-lavender: #E2D1F9;
+            --pastel-mint: #D1F7E9;
+            --pastel-blue: #D1E8FF;
+            --pastel-yellow: #FFF3CD;
+            --pastel-purple: #E6D1FF;
+            --primary: #8B5FBF;
+            --secondary: #FF85A2;
+            --text-dark: #5A5A5A;
+            --text-light: #FFFFFF;
+            --success: #28a745;
+            --error: #dc3545;
+            --warning: #ffc107;
+            --info: #17a2b8;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background-color: #FAF7FF;
+            color: var(--text-dark);
+            padding-top: 70px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        
+        /* Loader */
+        .loader {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.95);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            transition: opacity 0.3s;
+        }
+        
+        .jewelry-spinner {
+            position: relative;
+            width: 80px;
+            height: 80px;
+        }
+        
+        .jewelry-spinner .ring {
+            width: 80px;
+            height: 80px;
+            border: 6px solid var(--pastel-lavender);
+            border-top-color: var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        .jewelry-spinner .diamond {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 30px;
+            height: 30px;
+            background: var(--secondary);
+            transform: rotate(45deg);
+            animation: pulse 2s ease-in-out infinite;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        @keyframes pulse {
+            0%, 100% { transform: translate(-50%, -50%) rotate(45deg) scale(1); }
+            50% { transform: translate(-50%, -50%) rotate(45deg) scale(1.1); }
+        }
+        
+        /* Header */
+        header {
+            background: white;
+            padding: 1rem 2rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+        }
+        
+        .nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .logo i {
+            color: var(--secondary);
+        }
+        
+        .nav-menu {
+            display: flex;
+            list-style: none;
+            gap: 2rem;
+        }
+        
+        .nav-link {
+            text-decoration: none;
+            color: var(--text-dark);
+            font-weight: 500;
+            padding: 0.5rem 1rem;
+            border-radius: 5px;
+            transition: all 0.3s;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .nav-link:hover,
+        .nav-link.active {
+            background-color: var(--pastel-lavender);
+            color: var(--primary);
+        }
+        
+        .cart-count {
+            background: var(--secondary);
+            color: white;
+            font-size: 0.7rem;
+            padding: 2px 6px;
+            border-radius: 50%;
+            margin-left: 5px;
+        }
+        
+        .auth-section {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+        
+        .user-menu {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .user-avatar {
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+        
+        .btn {
+            padding: 0.5rem 1.5rem;
+            border: none;
+            border-radius: 5px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: #7a4fa8;
+            transform: translateY(-2px);
+        }
+        
+        .btn-outline {
+            background: transparent;
+            border: 2px solid var(--primary);
+            color: var(--primary);
+        }
+        
+        .btn-outline:hover {
+            background: var(--pastel-lavender);
+        }
+        
+        .btn-large {
+            padding: 1rem 2rem;
+            font-size: 1.1rem;
+        }
+        
+        .btn-block {
+            width: 100%;
+            justify-content: center;
+        }
+        
+        /* Sections */
+        .section {
+            padding: 4rem 0;
+            display: none;
+        }
+        
+        .section.active {
+            display: block;
+        }
+        
+        .section-title {
+            text-align: center;
+            font-size: 2.5rem;
+            color: var(--primary);
+            margin-bottom: 3rem;
+            position: relative;
+        }
+        
+        .section-title::after {
+            content: '';
+            display: block;
+            width: 100px;
+            height: 4px;
+            background: linear-gradient(to right, var(--primary), var(--secondary));
+            margin: 10px auto;
+            border-radius: 2px;
+        }
+        
+        /* Home Section */
+        .hero {
+            text-align: center;
+            padding: 4rem 0;
+        }
+        
+        .hero-title {
+            font-size: 3rem;
+            color: var(--primary);
+            margin-bottom: 1rem;
+            animation: fadeIn 1s ease-out;
+        }
+        
+        .hero-subtitle {
+            font-size: 1.5rem;
+            color: var(--text-dark);
+            margin-bottom: 2rem;
+            animation: fadeIn 1s ease-out 0.3s both;
+        }
+        
+        .features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            margin-top: 4rem;
+        }
+        
+        .feature-card {
+            background: white;
+            padding: 2rem;
+            border-radius: 15px;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            transition: transform 0.3s;
+        }
+        
+        .feature-card:hover {
+            transform: translateY(-10px);
+        }
+        
+        .feature-icon {
+            font-size: 2.5rem;
+            color: var(--primary);
+            margin-bottom: 1rem;
+        }
+        
+        /* Products Section */
+        .filter-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+        }
+        
+        .filter-btn {
+            padding: 0.5rem 1.5rem;
+            border: 2px solid var(--pastel-lavender);
+            background: white;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .filter-btn.active {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+        
+        .products-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+        
+        .product-card {
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            transition: transform 0.3s;
+        }
+        
+        .product-card:hover {
+            transform: translateY(-10px);
+        }
+        
+        .product-image {
+            height: 200px;
+            background: linear-gradient(135deg, var(--pastel-blue), var(--pastel-purple));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+            color: var(--primary);
+        }
+        
+        .product-info {
+            padding: 1.5rem;
+        }
+        
+        .product-title {
+            font-size: 1.25rem;
+            color: var(--primary);
+            margin-bottom: 0.5rem;
+        }
+        
+        .product-price {
+            font-size: 1.5rem;
+            color: var(--secondary);
+            font-weight: bold;
+            margin-bottom: 1rem;
+        }
+        
+        /* Stores Section */
+        .stores-container {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+        
+        #map {
+            height: 400px;
+            border-radius: 10px;
+            margin-bottom: 1rem;
+        }
+        
+        .store-cards {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+        
+        .store-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 10px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+        }
+        
+        /* Dashboard Section */
+        .dashboard-container {
+            display: grid;
+            grid-template-columns: 250px 1fr;
+            gap: 2rem;
+        }
+        
+        .dashboard-sidebar {
+            background: white;
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+        }
+        
+        .user-info-card {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        
+        .dashboard-avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin-bottom: 1rem;
+            border: 3px solid var(--pastel-lavender);
+        }
+        
+        .user-stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+        
+        .stat {
+            text-align: center;
+        }
+        
+        .stat-number {
+            display: block;
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--primary);
+        }
+        
+        .stat-label {
+            font-size: 0.875rem;
+            color: var(--text-dark);
+        }
+        
+        .dashboard-nav {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+        
+        .dashboard-nav-link {
+            padding: 0.75rem 1rem;
+            text-decoration: none;
+            color: var(--text-dark);
+            border-radius: 5px;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .dashboard-nav-link:hover,
+        .dashboard-nav-link.active {
+            background: var(--pastel-lavender);
+            color: var(--primary);
+        }
+        
+        .dashboard-content {
+            background: white;
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+        }
+        
+        .dashboard-tab {
+            display: none;
+        }
+        
+        .dashboard-tab.active {
+            display: block;
+        }
+        
+        .tab-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid var(--pastel-lavender);
+        }
+        
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .form-group {
+            margin-bottom: 1rem;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+        }
+        
+        .form-group input {
+            width: 100%;
+            padding: 0.75rem;
+            border: 2px solid var(--pastel-lavender);
+            border-radius: 5px;
+            font-size: 1rem;
+        }
+        
+        /* Cart Section */
+        .cart-container {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 2rem;
+        }
+        
+        .cart-items {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+        
+        .cart-item {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+        }
+        
+        .cart-summary {
+            background: white;
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+            position: sticky;
+            top: 100px;
+            height: fit-content;
+        }
+        
+        .summary-details {
+            margin: 1.5rem 0;
+        }
+        
+        .summary-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.75rem;
+            padding-bottom: 0.75rem;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .summary-row.total {
+            border-top: 2px solid var(--primary);
+            border-bottom: none;
+            padding-top: 0.75rem;
+            font-size: 1.25rem;
+            font-weight: bold;
+        }
+        
+        .promo-code {
+            display: flex;
+            gap: 0.5rem;
+            margin: 1.5rem 0;
+        }
+        
+        .promo-code input {
+            flex: 1;
+            padding: 0.75rem;
+            border: 2px solid var(--pastel-lavender);
+            border-radius: 5px;
+        }
+        
+        .btn-checkout {
+            width: 100%;
+            justify-content: center;
+            margin-top: 1rem;
+        }
+        
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .modal.active {
+            display: flex;
+        }
+        
+        .modal-content {
+            background: white;
+            padding: 2rem;
+            border-radius: 10px;
+            max-width: 400px;
+            width: 90%;
+            position: relative;
+        }
+        
+        .modal-close {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--text-dark);
+        }
+        
+        /* Notification */
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 1rem 2rem;
+            border-radius: 5px;
+            color: white;
+            z-index: 9999;
+            opacity: 0;
+            transform: translateX(100%);
+            transition: all 0.3s;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+        
+        .notification.show {
+            opacity: 1;
+            transform: translateX(0);
+        }
+        
+        .notification.success {
+            background: var(--success);
+            border-left: 4px solid #1e7e34;
+        }
+        
+        .notification.error {
+            background: var(--error);
+            border-left: 4px solid #bd2130;
+        }
+        
+        .notification.info {
+            background: var(--info);
+            border-left: 4px solid #117a8b;
+        }
+        
+        /* Footer */
+        .footer {
+            background: var(--pastel-lavender);
+            padding: 3rem 0;
+            margin-top: 4rem;
+        }
+        
+        .footer-content {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 2rem;
+        }
+        
+        .footer-section h3,
+        .footer-section h4 {
+            color: var(--primary);
+            margin-bottom: 1rem;
+        }
+        
+        .footer-section ul {
+            list-style: none;
+        }
+        
+        .footer-section ul li {
+            margin-bottom: 0.5rem;
+        }
+        
+        .footer-section ul li a {
+            text-decoration: none;
+            color: var(--text-dark);
+        }
+        
+        .social-icons {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+        
+        .social-icons a {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            background: white;
+            border-radius: 50%;
+            color: var(--primary);
+            text-decoration: none;
+            transition: all 0.3s;
+        }
+        
+        .social-icons a:hover {
+            background: var(--primary);
+            color: white;
+            transform: translateY(-3px);
+        }
+        
+        .footer-bottom {
+            text-align: center;
+            margin-top: 2rem;
+            padding-top: 2rem;
+            border-top: 1px solid rgba(139, 95, 191, 0.1);
+        }
+        
+        /* Utility */
+        .hidden {
+            display: none !important;
+        }
+        
+        .text-center {
+            text-align: center;
+        }
+        
+        .mt-2 { margin-top: 2rem; }
+        .mb-2 { margin-bottom: 2rem; }
+        
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .animate-fade-in {
+            animation: fadeIn 1s ease-out;
+        }
+        
+        .animate-fade-in-delay {
+            animation: fadeIn 1s ease-out 0.3s both;
+        }
+        
+        .animate-slide-up {
+            animation: slideUp 0.6s ease-out 0.6s both;
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .nav-menu {
+                display: none;
+                position: absolute;
+                top: 100%;
+                left: 0;
+                right: 0;
+                background: white;
+                flex-direction: column;
+                padding: 1rem;
+                box-shadow: 0 5px 10px rgba(0,0,0,0.1);
+            }
+            
+            .nav-menu.active {
+                display: flex;
+            }
+            
+            .menu-toggle {
+                display: block;
+                background: none;
+                border: none;
+                font-size: 1.5rem;
+                cursor: pointer;
+                color: var(--primary);
+            }
+            
+            .cart-container,
+            .dashboard-container,
+            .stores-container,
+            .footer-content {
+                grid-template-columns: 1fr;
+            }
+            
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .section-title {
+                font-size: 2rem;
+            }
+            
+            .hero-title {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Loader -->
+    <div class="loader" id="loader">
+        <div class="loader-content">
+            <div class="jewelry-spinner">
+                <div class="ring"></div>
+                <div class="diamond"></div>
+            </div>
+            <p>Загрузка украшений...</p>
+        </div>
+    </div>
+
+    <!-- Header -->
+    <header>
+        <nav class="nav">
+            <div class="logo">
+                <i class="fas fa-gem"></i>
+                <span>Elegance</span>
+            </div>
+            
+            <ul class="nav-menu" id="navMenu">
+                <li><a href="#" class="nav-link active" onclick="showSection('home')">
+                    <i class="fas fa-home"></i> Главная
+                </a></li>
+                <li><a href="#" class="nav-link" onclick="showSection('products')">
+                    <i class="fas fa-ring"></i> Коллекции
+                </a></li>
+                <li><a href="#" class="nav-link" onclick="showSection('stores')">
+                    <i class="fas fa-store"></i> Магазины
+                </a></li>
+                <li><a href="#" class="nav-link" onclick="showSection('dashboard')">
+                    <i class="fas fa-user"></i> Профиль
+                </a></li>
+                <li><a href="#" class="nav-link" onclick="showSection('cart')">
+                    <i class="fas fa-shopping-cart"></i> Корзина <span class="cart-count">0</span>
+                </a></li>
+            </ul>
+            
+            <div class="auth-section">
+                <div id="guestButtons">
+                    <button class="btn btn-outline" onclick="showModal('loginModal')">
+                        <i class="fas fa-sign-in-alt"></i> Войти
+                    </button>
+                    <button class="btn btn-primary" onclick="showModal('registerModal')">
+                        <i class="fas fa-user-plus"></i> Регистрация
+                    </button>
+                </div>
+                <div class="user-menu hidden" id="userMenu">
+                    <img src="https://ui-avatars.com/api/?name=User&background=FFD6E7&color=8B5FBF" alt="Аватар" class="user-avatar" id="userAvatar">
+                    <span id="userName">Гость</span>
+                    <button class="btn btn-logout" onclick="logout()">
+                        <i class="fas fa-sign-out-alt"></i>
+                    </button>
+                </div>
+                <button class="menu-toggle" id="menuToggle">
+                    <i class="fas fa-bars"></i>
+                </button>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Main Content -->
+    <main>
+        <!-- Home Section -->
+        <section id="home" class="section active">
+            <div class="hero">
+                <h1 class="hero-title animate-fade-in">Украшения ручной работы</h1>
+                <p class="hero-subtitle animate-fade-in-delay">Изысканность в каждой детали</p>
+                <button class="btn btn-primary btn-large animate-slide-up" onclick="showSection('products')">
+                    Смотреть коллекцию
+                </button>
+            </div>
+            
+            <div class="container">
+                <h2 class="section-title">Почему выбирают нас</h2>
+                <div class="features">
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="fas fa-hand-sparkles"></i>
+                        </div>
+                        <h3>Ручная работа</h3>
+                        <p>Каждое украшение создается с любовью и вниманием к деталям</p>
+                    </div>
+                    
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="fas fa-gem"></i>
+                        </div>
+                        <h3>Натуральные камни</h3>
+                        <p>Используем только качественные материалы и натуральные камни</p>
+                    </div>
+                    
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="fas fa-shipping-fast"></i>
+                        </div>
+                        <h3>Быстрая доставка</h3>
+                        <p>Доставка по всей России в кратчайшие сроки</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Products Section -->
+        <section id="products" class="section">
+            <div class="container">
+                <h2 class="section-title">Наши коллекции</h2>
+                <div class="filter-buttons">
+                    <button class="filter-btn active" data-filter="all" onclick="filterProducts('all')">Все</button>
+                    <button class="filter-btn" data-filter="rings" onclick="filterProducts('rings')">Кольца</button>
+                    <button class="filter-btn" data-filter="earrings" onclick="filterProducts('earrings')">Серьги</button>
+                    <button class="filter-btn" data-filter="necklaces" onclick="filterProducts('necklaces')">Колье</button>
+                    <button class="filter-btn" data-filter="bracelets" onclick="filterProducts('bracelets')">Браслеты</button>
+                </div>
+                
+                <div class="products-grid" id="productsGrid">
+                    <!-- Товары загружаются через JS -->
+                </div>
+            </div>
+        </section>
+
+        <!-- Stores Section -->
+        <section id="stores" class="section">
+            <div class="container">
+                <h2 class="section-title">Наши магазины</h2>
+                <div class="stores-container">
+                    <div class="map-container">
+                        <div id="map"></div>
+                        <div class="map-controls mt-2">
+                            <button class="btn btn-outline" onclick="locateUser()">
+                                <i class="fas fa-location-arrow"></i> Мое местоположение
+                            </button>
+                        </div>
+                    </div>
+                    <div class="stores-list">
+                        <h3><i class="fas fa-map-marker-alt"></i> Адреса магазинов</h3>
+                        <div class="store-cards" id="storeCards">
+                            <!-- Карточки магазинов загружаются через JS -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Dashboard Section -->
+        <section id="dashboard" class="section">
+            <div class="container">
+                <h2 class="section-title">Личный кабинет</h2>
+                <div class="dashboard-container">
+                    <div class="dashboard-sidebar">
+                        <div class="user-info-card">
+                            <img src="https://ui-avatars.com/api/?name=User&background=FFD6E7&color=8B5FBF" alt="Аватар" class="dashboard-avatar" id="dashboardAvatar">
+                            <h3 id="dashboardUserName">Гость</h3>
+                            <p id="dashboardUserEmail">Войдите в систему</p>
+                            <div class="user-stats">
+                                <div class="stat">
+                                    <span class="stat-number" id="statOrders">0</span>
+                                    <span class="stat-label">Заказов</span>
+                                </div>
+                                <div class="stat">
+                                    <span class="stat-number" id="statCart">0</span>
+                                    <span class="stat-label">В корзине</span>
+                                </div>
+                                <div class="stat">
+                                    <span class="stat-number" id="statFavorites">0</span>
+                                    <span class="stat-label">Избранное</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <nav class="dashboard-nav">
+                            <a href="#" class="dashboard-nav-link active" onclick="showDashboardTab('profile')">
+                                <i class="fas fa-user"></i> Профиль
+                            </a>
+                            <a href="#" class="dashboard-nav-link" onclick="showDashboardTab('orders')">
+                                <i class="fas fa-shopping-bag"></i> Мои заказы
+                            </a>
+                            <a href="#" class="dashboard-nav-link" onclick="showDashboardTab('favorites')">
+                                <i class="fas fa-heart"></i> Избранное
+                            </a>
+                            <a href="#" class="dashboard-nav-link" onclick="showDashboardTab('statistics')">
+                                <i class="fas fa-chart-pie"></i> Статистика
+                            </a>
+                        </nav>
+                    </div>
+                    
+                    <div class="dashboard-content">
+                        <!-- Profile Tab -->
+                        <div id="profileTab" class="dashboard-tab active">
+                            <div class="tab-header">
+                                <h3><i class="fas fa-user-circle"></i> Личная информация</h3>
+                            </div>
+                            <form id="profileForm" class="mt-2">
+                                <div class="form-grid">
+                                    <div class="form-group">
+                                        <label>Имя</label>
+                                        <input type="text" id="profileName" placeholder="Введите ваше имя">
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Email</label>
+                                        <input type="email" id="profileEmail" placeholder="Введите ваш email" readonly>
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Телефон</label>
+                                        <input type="tel" id="profilePhone" placeholder="+7 (999) 999-99-99">
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Адрес доставки</label>
+                                        <input type="text" id="profileAddress" placeholder="Введите ваш адрес">
+                                    </div>
+                                </div>
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-save"></i> Сохранить изменения
+                                </button>
+                            </form>
+                        </div>
+                        
+                        <!-- Orders Tab -->
+                        <div id="ordersTab" class="dashboard-tab">
+                            <div class="tab-header">
+                                <h3><i class="fas fa-shopping-bag"></i> История заказов</h3>
+                                <button class="btn btn-outline" onclick="refreshOrders()">
+                                    <i class="fas fa-sync-alt"></i> Обновить
+                                </button>
+                            </div>
+                            <div class="mt-2">
+                                <table class="orders-table">
+                                    <thead>
+                                        <tr>
+                                            <th>№ Заказа</th>
+                                            <th>Дата</th>
+                                            <th>Товары</th>
+                                            <th>Сумма</th>
+                                            <th>Статус</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="ordersTableBody">
+                                        <tr>
+                                            <td colspan="5" class="text-center">У вас пока нет заказов</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        
+                        <!-- Favorites Tab -->
+                        <div id="favoritesTab" class="dashboard-tab">
+                            <div class="tab-header">
+                                <h3><i class="fas fa-heart"></i> Избранное</h3>
+                                <button class="btn btn-outline" onclick="clearFavorites()">
+                                    <i class="fas fa-trash"></i> Очистить все
+                                </button>
+                            </div>
+                            <div class="products-grid mt-2" id="favoritesGrid">
+                                <div class="text-center">
+                                    <i class="fas fa-heart" style="font-size: 3rem; color: var(--pastel-pink); margin-bottom: 1rem;"></i>
+                                    <h4>Список избранного пуст</h4>
+                                    <p>Добавляйте товары в избранное, нажимая на сердечко</p>
+                                    <button class="btn btn-primary mt-2" onclick="showSection('products')">
+                                        <i class="fas fa-shopping-bag"></i> Перейти к покупкам
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Statistics Tab -->
+                        <div id="statisticsTab" class="dashboard-tab">
+                            <div class="tab-header">
+                                <h3><i class="fas fa-chart-pie"></i> Статистика покупок</h3>
+                                <select id="statPeriod" class="form-select" onchange="updateStatistics()">
+                                    <option value="month">За месяц</option>
+                                    <option value="quarter">За квартал</option>
+                                    <option value="year" selected>За год</option>
+                                </select>
+                            </div>
+                            <div class="features mt-2">
+                                <div class="feature-card">
+                                    <div class="stat-icon">
+                                        <i class="fas fa-shopping-cart"></i>
+                                    </div>
+                                    <div class="stat-info">
+                                        <div class="stat-value" id="totalOrdersStat">0</div>
+                                        <div class="stat-label">Всего заказов</div>
+                                    </div>
+                                </div>
+                                <div class="feature-card">
+                                    <div class="stat-icon">
+                                        <i class="fas fa-ruble-sign"></i>
+                                    </div>
+                                    <div class="stat-info">
+                                        <div class="stat-value" id="totalSpentStat">0 ₽</div>
+                                        <div class="stat-label">Всего потрачено</div>
+                                    </div>
+                                </div>
+                                <div class="feature-card">
+                                    <div class="stat-icon">
+                                        <i class="fas fa-box"></i>
+                                    </div>
+                                    <div class="stat-info">
+                                        <div class="stat-value" id="avgOrderStat">0 ₽</div>
+                                        <div class="stat-label">Средний чек</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="mt-2">
+                                <canvas id="categoryChart" width="400" height="200"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Cart Section -->
+        <section id="cart" class="section">
+            <div class="container">
+                <h2 class="section-title">Корзина</h2>
+                <div class="cart-container">
+                    <div class="cart-items" id="cartItems">
+                        <div class="text-center">
+                            <i class="fas fa-shopping-cart" style="font-size: 3rem; color: var(--pastel-lavender); margin-bottom: 1rem;"></i>
+                            <h3>Корзина пуста</h3>
+                            <p>Добавьте товары из каталога</p>
+                            <button class="btn btn-primary mt-2" onclick="showSection('products')">
+                                <i class="fas fa-shopping-bag"></i> Перейти к покупкам
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="cart-summary">
+                        <h3>Итого</h3>
+                        <div class="summary-details">
+                            <div class="summary-row">
+                                <span>Товаров:</span>
+                                <span id="totalItems">0</span>
+                            </div>
+                            <div class="summary-row">
+                                <span>Сумма:</span>
+                                <span id="subtotal">0 ₽</span>
+                            </div>
+                            <div class="summary-row">
+                                <span>Доставка:</span>
+                                <span id="shipping">0 ₽</span>
+                            </div>
+                            <div class="summary-row discount">
+                                <span>Скидка:</span>
+                                <span id="discount">0 ₽</span>
+                            </div>
+                            <div class="summary-row total">
+                                <span>К оплате:</span>
+                                <span id="totalAmount">0 ₽</span>
+                            </div>
+                        </div>
+                        <div class="promo-code">
+                            <input type="text" id="promoCode" placeholder="Промокод">
+                            <button class="btn btn-outline" onclick="applyPromoCode()">Применить</button>
+                        </div>
+                        <button class="btn btn-primary btn-checkout" onclick="checkout()">
+                            <i class="fas fa-lock"></i> Оформить заказ
+                        </button>
+                        <p class="text-center mt-2">
+                            <i class="fas fa-shield-alt"></i> Безопасная оплата
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>Elegance</h3>
+                    <p>Украшения ручной работы с 2015 года</p>
+                    <div class="social-icons">
+                        <a href="#"><i class="fab fa-instagram"></i></a>
+                        <a href="#"><i class="fab fa-vk"></i></a>
+                        <a href="#"><i class="fab fa-telegram"></i></a>
+                        <a href="#"><i class="fab fa-whatsapp"></i></a>
+                    </div>
+                </div>
+                
+                <div class="footer-section">
+                    <h4>Каталог</h4>
+                    <ul>
+                        <li><a href="#" onclick="showSection('products')">Кольца</a></li>
+                        <li><a href="#" onclick="showSection('products')">Серьги</a></li>
+                        <li><a href="#" onclick="showSection('products')">Колье</a></li>
+                        <li><a href="#" onclick="showSection('products')">Браслеты</a></li>
+                    </ul>
+                </div>
+                
+                <div class="footer-section">
+                    <h4>Помощь</h4>
+                    <ul>
+                        <li><a href="#">Доставка и оплата</a></li>
+                        <li><a href="#">Возврат и обмен</a></li>
+                        <li><a href="#">Размеры</a></li>
+                        <li><a href="#">Контакты</a></li>
+                    </ul>
+                </div>
+                
+                <div class="footer-section">
+                    <h4>Контакты</h4>
+                    <p><i class="fas fa-phone"></i> +7 (999) 123-45-67</p>
+                    <p><i class="fas fa-envelope"></i> info@elegance.ru</p>
+                    <p><i class="fas fa-map-marker-alt"></i> Москва, ул. Примерная, 10</p>
+                </div>
+            </div>
+            
+            <div class="footer-bottom">
+                <p>&copy; 2024 Elegance. Все права защищены.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Modals -->
+    <div class="modal" id="loginModal">
+        <div class="modal-content">
+            <button class="modal-close" onclick="hideModal('loginModal')">&times;</button>
+            <h2>Вход в аккаунт</h2>
+            <form id="loginForm">
+                <div class="form-group">
+                    <label>Email</label>
+                    <input type="email" id="loginEmail" required placeholder="example@mail.ru">
+                </div>
+                <div class="form-group">
+                    <label>Пароль</label>
+                    <input type="password" id="loginPassword" required placeholder="Введите пароль">
+                    <div class="password-toggle">
+                        <i class="fas fa-eye" onclick="togglePasswordVisibility('loginPassword', this)"></i>
+                    </div>
+                </div>
+                <div class="form-options">
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="rememberMe">
+                        <span>Запомнить меня</span>
+                    </label>
+                    <a href="#" class="forgot-password">Забыли пароль?</a>
+                </div>
+                <button type="submit" class="btn btn-primary btn-block">
+                    <i class="fas fa-sign-in-alt"></i> Войти
+                </button>
+            </form>
+            <p class="text-center mt-2">
+                Нет аккаунта? <a href="#" onclick="showModal('registerModal')">Зарегистрироваться</a>
+            </p>
+        </div>
+    </div>
+
+    <div class="modal" id="registerModal">
+        <div class="modal-content">
+            <button class="modal-close" onclick="hideModal('registerModal')">&times;</button>
+            <h2>Регистрация</h2>
+            <form id="registerForm">
+                <div class="form-group">
+                    <label>Имя</label>
+                    <input type="text" id="registerName" required placeholder="Иван Иванов">
+                </div>
+                <div class="form-group">
+                    <label>Email</label>
+                    <input type="email" id="registerEmail" required placeholder="example@mail.ru">
+                </div>
+                <div class="form-group">
+                    <label>Пароль</label>
+                    <input type="password" id="registerPassword" required placeholder="Минимум 6 символов">
+                    <div class="password-toggle">
+                        <i class="fas fa-eye" onclick="togglePasswordVisibility('registerPassword', this)"></i>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Подтвердите пароль</label>
+                    <input type="password" id="registerConfirmPassword" required placeholder="Повторите пароль">
+                    <div class="password-toggle">
+                        <i class="fas fa-eye" onclick="togglePasswordVisibility('registerConfirmPassword', this)"></i>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Телефон (необязательно)</label>
+                    <input type="tel" id="registerPhone" placeholder="+7 (999) 999-99-99">
+                </div>
+                <div class="form-options">
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="acceptTerms" required>
+                        <span>Я согласен с правилами и политикой конфиденциальности</span>
+                    </label>
+                </div>
+                <button type="submit" class="btn btn-primary btn-block">
+                    <i class="fas fa-user-plus"></i> Зарегистрироваться
+                </button>
+            </form>
+            <p class="text-center mt-2">
+                Уже есть аккаунт? <a href="#" onclick="showModal('loginModal')">Войти</a>
+            </p>
+        </div>
+    </div>
+
+    <!-- Notification -->
+    <div id="notification" class="notification"></div>
+
+    <!-- JavaScript -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script>
+        // Глобальные переменные
+        let currentUser = null;
+        let cart = [];
+        let orders = [];
+        let favorites = [];
+        let products = [];
+        let currentFilter = 'all';
+        let map = null;
+        let markers = [];
+        let categoryChart = null;
+
+        // Инициализация при загрузке
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('Приложение загружено');
+            
+            // Инициализация мобильного меню
+            const menuToggle = document.getElementById('menuToggle');
+            const navMenu = document.getElementById('navMenu');
+            
+            if (menuToggle && navMenu) {
+                menuToggle.addEventListener('click', function() {
+                    navMenu.classList.toggle('active');
+                });
+            }
+            
+            // Загрузка данных из localStorage
+            loadData();
+            
+            // Инициализация товаров
+            initProducts();
+            
+            // Обновление интерфейса
+            updateUI();
+            
+            // Настройка обработчиков событий
+            setupEventListeners();
+            
+            // Показать главную страницу
+            showSection('home');
+            
+            // Скрыть loader
+            setTimeout(() => {
+                const loader = document.getElementById('loader');
+                if (loader) {
+                    loader.style.opacity = '0';
+                    setTimeout(() => {
+                        loader.style.display = 'none';
+                    }, 300);
+                }
+                
+                // Показать приветственное уведомление
+                setTimeout(() => {
+                    showNotification('Добро пожаловать в Elegance!', 'success');
+                }, 500);
+            }, 1000);
+        });
+
+        // Загрузка данных
+        function loadData() {
+            currentUser = JSON.parse(localStorage.getItem('currentUser')) || null;
+            cart = JSON.parse(localStorage.getItem('cart')) || [];
+            orders = JSON.parse(localStorage.getItem('orders')) || [];
+            favorites = JSON.parse(localStorage.getItem('favorites')) || [];
+            products = JSON.parse(localStorage.getItem('products')) || [];
+            
+            console.log('Данные загружены:', { currentUser, cart, orders, favorites });
+        }
+
+        // Сохранение данных
+        function saveData() {
+            localStorage.setItem('currentUser', JSON.stringify(currentUser));
+            localStorage.setItem('cart', JSON.stringify(cart));
+            localStorage.setItem('orders', JSON.stringify(orders));
+            localStorage.setItem('favorites', JSON.stringify(favorites));
+            localStorage.setItem('products', JSON.stringify(products));
+        }
+
+        // Инициализация товаров
+        function initProducts() {
+            if (products.length === 0) {
+                products = [
+                    { 
+                        id: 1, 
+                        name: 'Кольцо "Нежность"', 
+                        price: 2500, 
+                        category: 'rings',
+                        description: 'Изящное серебряное кольцо с фианитом',
+                        image: 'ring'
+                    },
+                    { 
+                        id: 2, 
+                        name: 'Серьги "Весенний ветер"', 
+                        price: 3200, 
+                        category: 'earrings',
+                        description: 'Серьги-гвоздики с жемчугом',
+                        image: 'earrings'
+                    },
+                    { 
+                        id: 3, 
+                        name: 'Колье "Королевское"', 
+                        price: 5800, 
+                        category: 'necklaces',
+                        description: 'Колье с кристаллами Сваровски',
+                        image: 'necklace'
+                    },
+                    { 
+                        id: 4, 
+                        name: 'Браслет "Гармония"', 
+                        price: 4200, 
+                        category: 'bracelets',
+                        description: 'Плетеный браслет из натуральной кожи',
+                        image: 'bracelet'
+                    },
+                    { 
+                        id: 5, 
+                        name: 'Комплект "Свадебный"', 
+                        price: 12500, 
+                        category: 'sets',
+                        description: 'Полный комплект для невесты',
+                        image: 'set'
+                    },
+                    { 
+                        id: 6, 
+                        name: 'Кольцо "Луна"', 
+                        price: 3800, 
+                        category: 'rings',
+                        description: 'Кольцо с лунным камнем',
+                        image: 'ring2'
+                    },
+                    { 
+                        id: 7, 
+                        name: 'Серьги "Капли росы"', 
+                        price: 4500, 
+                        category: 'earrings',
+                        description: 'Длинные серьги с хрустальными подвесками',
+                        image: 'earrings2'
+                    },
+                    { 
+                        id: 8, 
+                        name: 'Браслет "Удача"', 
+                        price: 2900, 
+                        category: 'bracelets',
+                        description: 'Браслет с подвесками-талисманами',
+                        image: 'bracelet2'
+                    }
+                ];
+                saveData();
+            }
+        }
+
+        // Настройка обработчиков событий
+        function setupEventListeners() {
+            // Форма входа
+            document.getElementById('loginForm')?.addEventListener('submit', function(e) {
+                e.preventDefault();
+                login();
+            });
+            
+            // Форма регистрации
+            document.getElementById('registerForm')?.addEventListener('submit', function(e) {
+                e.preventDefault();
+                register();
+            });
+            
+            // Форма профиля
+            document.getElementById('profileForm')?.addEventListener('submit', function(e) {
+                e.preventDefault();
+                saveProfile();
+            });
+            
+            // Клик вне модального окна
+            window.addEventListener('click', function(e) {
+                if (e.target.classList.contains('modal')) {
+                    hideModal(e.target.id);
+                }
+            });
+            
+            // Закрытие мобильного меню при клике на ссылку
+            document.querySelectorAll('.nav-link').forEach(link => {
+                link.addEventListener('click', function() {
+                    const navMenu = document.getElementById('navMenu');
+                    if (navMenu && navMenu.classList.contains('active')) {
+                        navMenu.classList.remove('active');
+                    }
+                });
+            });
+        }
+
+        // Показать секцию
+        function showSection(sectionId) {
+            console.log('Показываем секцию:', sectionId);
+            
+            // Скрыть все секции
+            document.querySelectorAll('.section').forEach(section => {
+                section.classList.remove('active');
+            });
+            
+            // Показать выбранную секцию
+            const targetSection = document.getElementById(sectionId);
+            if (targetSection) {
+                targetSection.classList.add('active');
+            }
+            
+            // Обновить активную ссылку в навигации
+            document.querySelectorAll('.nav-link').forEach(link => {
+                link.classList.remove('active');
+            });
+            
+            // Найти и активировать соответствующую ссылку
+            const activeLink = Array.from(document.querySelectorAll('.nav-link')).find(link => {
+                return link.textContent.includes(getSectionName(sectionId));
+            });
+            
+            if (activeLink) {
+                activeLink.classList.add('active');
+            }
+            
+            // Инициализировать секцию
+            initSection(sectionId);
+            
+            // Прокрутить к началу
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // Получить имя секции для ссылки
+        function getSectionName(sectionId) {
+            const names = {
+                'home': 'Главная',
+                'products': 'Коллекции',
+                'stores': 'Магазины',
+                'dashboard': 'Профиль',
+                'cart': 'Корзина'
+            };
+            return names[sectionId] || '';
+        }
+
+        // Инициализация секции
+        function initSection(sectionId) {
+            switch(sectionId) {
+                case 'products':
+                    displayProducts();
+                    break;
+                case 'cart':
+                    displayCart();
+                    break;
+                case 'dashboard':
+                    displayDashboard();
+                    break;
+                case 'stores':
+                    initMap();
+                    displayStores();
+                    break;
+            }
+        }
+
+        // Показать модальное окно
+        function showModal(modalId) {
+            const modal = document.getElementById(modalId);
+            if (modal) {
+                modal.classList.add('active');
+                document.body.style.overflow = 'hidden';
+            }
+        }
+
+        // Скрыть модальное окно
+        function hideModal(modalId) {
+            const modal = document.getElementById(modalId);
+            if (modal) {
+                modal.classList.remove('active');
+                document.body.style.overflow = 'auto';
+                
+                // Очистить формы
+                if (modalId === 'loginModal') {
+                    document.getElementById('loginForm')?.reset();
+                } else if (modalId === 'registerModal') {
+                    document.getElementById('registerForm')?.reset();
+                }
+            }
+        }
+
+        // Показать вкладку в дашборде
+        function showDashboardTab(tabId) {
+            // Скрыть все вкладки
+            document.querySelectorAll('.dashboard-tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // Убрать активный класс у всех ссылок
+            document.querySelectorAll('.dashboard-nav-link').forEach(link => {
+                link.classList.remove('active');
+            });
+            
+            // Показать выбранную вкладку
+            const tab = document.getElementById(tabId + 'Tab');
+            if (tab) {
+                tab.classList.add('active');
+            }
+            
+            // Активировать соответствующую ссылку
+            const activeLink = Array.from(document.querySelectorAll('.dashboard-nav-link')).find(link => {
+                return link.textContent.includes(getTabName(tabId));
+            });
+            
+            if (activeLink) {
+                activeLink.classList.add('active');
+            }
+            
+            // Инициализировать вкладку
+            initDashboardTab(tabId);
+        }
+
+        // Получить имя вкладки
+        function getTabName(tabId) {
+            const names = {
+                'profile': 'Профиль',
+                'orders': 'Заказы',
+                'favorites': 'Избранное',
+                'statistics': 'Статистика'
+            };
+            return names[tabId] || '';
+        }
+
+        // Инициализация вкладки дашборда
+        function initDashboardTab(tabId) {
+            switch(tabId) {
+                case 'profile':
+                    loadProfileData();
+                    break;
+                case 'orders':
+                    displayOrders();
+                    break;
+                case 'favorites':
+                    displayFavorites();
+                    break;
+                case 'statistics':
+                    updateStatistics();
+                    break;
+            }
+        }
+
+        // Показать уведомление
+        function showNotification(message, type = 'info', duration = 3000) {
+            const notification = document.getElementById('notification');
+            if (!notification) return;
+            
+            notification.textContent = message;
+            notification.className = `notification ${type}`;
+            notification.classList.add('show');
+            
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, duration);
+        }
+
+        // Обновление интерфейса
+        function updateUI() {
+            // Обновить счетчик корзины
+            updateCartCount();
+            
+            // Обновить информацию пользователя
+            updateUserInfo();
+        }
+
+        // Обновить счетчик корзины
+        function updateCartCount() {
+            const totalItems = cart.reduce((sum, item) => sum + (item.quantity || 1), 0);
+            document.querySelectorAll('.cart-count').forEach(element => {
+                element.textContent = totalItems;
+            });
+        }
+
+        // Обновить информацию пользователя
+        function updateUserInfo() {
+            const guestButtons = document.getElementById('guestButtons');
+            const userMenu = document.getElementById('userMenu');
+            const userName = document.getElementById('userName');
+            const userAvatar = document.getElementById('userAvatar');
+            const dashboardUserName = document.getElementById('dashboardUserName');
+            const dashboardUserEmail = document.getElementById('dashboardUserEmail');
+            const dashboardAvatar = document.getElementById('dashboardAvatar');
+            const profileEmail = document.getElementById('profileEmail');
+            const profileName = document.getElementById('profileName');
+            const statOrders = document.getElementById('statOrders');
+            const statCart = document.getElementById('statCart');
+            const statFavorites = document.getElementById('statFavorites');
+            
+            if (currentUser) {
+                // Показать меню пользователя
+                if (guestButtons) guestButtons.classList.add('hidden');
+                if (userMenu) userMenu.classList.remove('hidden');
+                
+                // Обновить данные
+                const displayName = currentUser.name || currentUser.email.split('@')[0];
+                if (userName) userName.textContent = displayName;
+                if (dashboardUserName) dashboardUserName.textContent = displayName;
+                if (dashboardUserEmail) dashboardUserEmail.textContent = currentUser.email;
+                if (profileEmail) profileEmail.value = currentUser.email;
+                if (profileName) profileName.value = currentUser.name || '';
+                
+                // Обновить аватар
+                const avatarUrl = `https://ui-avatars.com/api/?name=${encodeURIComponent(displayName)}&background=FFD6E7&color=8B5FBF`;
+                if (userAvatar) userAvatar.src = avatarUrl;
+                if (dashboardAvatar) dashboardAvatar.src = avatarUrl;
+                
+                // Количество заказов пользователя
+                const userOrders = orders.filter(order => order.userId === currentUser.id);
+                if (statOrders) statOrders.textContent = userOrders.length;
+                
+                // Количество избранных товаров
+                if (statFavorites) statFavorites.textContent = favorites.length;
+            } else {
+                // Показать кнопки входа
+                if (guestButtons) guestButtons.classList.remove('hidden');
+                if (userMenu) userMenu.classList.add('hidden');
+                
+                // Сбросить данные
+                if (dashboardUserName) dashboardUserName.textContent = 'Гость';
+                if (dashboardUserEmail) dashboardUserEmail.textContent = 'Войдите в систему';
+                if (profileEmail) profileEmail.value = '';
+                if (profileName) profileName.value = '';
+                if (statOrders) statOrders.textContent = '0';
+                if (statFavorites) statFavorites.textContent = '0';
+                
+                // Аватар по умолчанию
+                const defaultAvatar = 'https://ui-avatars.com/api/?name=Guest&background=FFD6E7&color=8B5FBF';
+                if (userAvatar) userAvatar.src = defaultAvatar;
+                if (dashboardAvatar) dashboardAvatar.src = defaultAvatar;
+            }
+            
+            // Количество в корзине
+            const totalCartItems = cart.reduce((sum, item) => sum + (item.quantity || 1), 0);
+            if (statCart) statCart.textContent = totalCartItems;
+        }
+
+        // Вход
+        function login() {
+            const email = document.getElementById('loginEmail').value.trim();
+            const password = document.getElementById('loginPassword').value;
+            
+            if (!email || !password) {
+                showNotification('Заполните все поля', 'error');
+                return;
+            }
+            
+            // Получить пользователей из localStorage
+            const users = JSON.parse(localStorage.getItem('users')) || [];
+            const user = users.find(u => u.email === email && u.password === password);
+            
+            if (user) {
+                currentUser = {
+                    id: user.id,
+                    email: user.email,
+                    name: user.name,
+                    phone: user.phone || '',
+                    address: user.address || ''
+                };
+                
+                saveData();
+                updateUI();
+                hideModal('loginModal');
+                showNotification('Вход выполнен успешно!', 'success');
+                
+                // Загрузить данные профиля
+                loadProfileData();
+            } else {
+                showNotification('Неверный email или пароль', 'error');
+            }
+        }
+
+        // Регистрация
+        function register() {
+            const name = document.getElementById('registerName').value.trim();
+            const email = document.getElementById('registerEmail').value.trim();
+            const password = document.getElementById('registerPassword').value;
+            const confirmPassword = document.getElementById('registerConfirmPassword').value;
+            const phone = document.getElementById('registerPhone').value.trim();
+            
+            if (!name || !email || !password || !confirmPassword) {
+                showNotification('Заполните все обязательные поля', 'error');
+                return;
+            }
+            
+            if (password !== confirmPassword) {
+                showNotification('Пароли не совпадают', 'error');
+                return;
+            }
+            
+            if (password.length < 6) {
+                showNotification('Пароль должен содержать минимум 6 символов', 'error');
+                return;
+            }
+            
+            // Проверить, существует ли пользователь
+            const users = JSON.parse(localStorage.getItem('users')) || [];
+            const existingUser = users.find(u => u.email === email);
+            
+            if (existingUser) {
+                showNotification('Пользователь с таким email уже существует', 'error');
+                return;
+            }
+            
+            // Создать нового пользователя
+            const newUser = {
+                id: Date.now(),
+                name: name,
+                email: email,
+                password: password,
+                phone: phone,
+                address: '',
+                registeredAt: new Date().toISOString()
+            };
+            
+            users.push(newUser);
+            localStorage.setItem('users', JSON.stringify(users));
+            
+            // Автоматический вход
+            currentUser = {
+                id: newUser.id,
+                email: newUser.email,
+                name: newUser.name,
+                phone: newUser.phone,
+                address: newUser.address
+            };
+            
+            saveData();
+            updateUI();
+            hideModal('registerModal');
+            showNotification('Регистрация прошла успешно!', 'success');
+            
+            // Загрузить данные профиля
+            loadProfileData();
+        }
+
+        // Выход
+        function logout() {
+            currentUser = null;
+            saveData();
+            updateUI();
+            showNotification('Вы вышли из системы', 'info');
+            showSection('home');
+        }
+
+        // Загрузка данных профиля
+        function loadProfileData() {
+            if (!currentUser) return;
+            
+            const profileName = document.getElementById('profileName');
+            const profileEmail = document.getElementById('profileEmail');
+            const profilePhone = document.getElementById('profilePhone');
+            const profileAddress = document.getElementById('profileAddress');
+            
+            if (profileName) profileName.value = currentUser.name || '';
+            if (profileEmail) profileEmail.value = currentUser.email;
+            if (profilePhone) profilePhone.value = currentUser.phone || '';
+            if (profileAddress) profileAddress.value = currentUser.address || '';
+        }
+
+        // Сохранение профиля
+        function saveProfile() {
+            if (!currentUser) {
+                showNotification('Войдите в систему', 'error');
+                return;
+            }
+            
+            const name = document.getElementById('profileName').value.trim();
+            const phone = document.getElementById('profilePhone').value.trim();
+            const address = document.getElementById('profileAddress').value.trim();
+            
+            if (!name) {
+                showNotification('Введите имя', 'error');
+                return;
+            }
+            
+            // Обновить пользователя
+            const users = JSON.parse(localStorage.getItem('users')) || [];
+            const userIndex = users.findIndex(u => u.id === currentUser.id);
+            
+            if (userIndex !== -1) {
+                users[userIndex].name = name;
+                users[userIndex].phone = phone;
+                users[userIndex].address = address;
+                localStorage.setItem('users', JSON.stringify(users));
+                
+                currentUser.name = name;
+                currentUser.phone = phone;
+                currentUser.address = address;
+                saveData();
+                updateUI();
+                showNotification('Профиль сохранен', 'success');
+            }
+        }
+
+        // Фильтрация товаров
+        function filterProducts(category) {
+            currentFilter = category;
+            
+            // Обновить активную кнопку фильтра
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.classList.remove('active');
+                if (btn.dataset.filter === category) {
+                    btn.classList.add('active');
+                }
+            });
+            
+            displayProducts();
+        }
+
+        // Отображение товаров
+        function displayProducts() {
+            const productsGrid = document.getElementById('productsGrid');
+            if (!productsGrid) return;
+            
+            // Фильтрация товаров
+            let filteredProducts = products;
+            if (currentFilter !== 'all') {
+                filteredProducts = products.filter(product => product.category === currentFilter);
+            }
+            
+            productsGrid.innerHTML = '';
+            
+            if (filteredProducts.length === 0) {
+                productsGrid.innerHTML = '<div class="text-center"><p>Товары не найдены</p></div>';
+                return;
+            }
+            
+            filteredProducts.forEach(product => {
+                const isFavorite = favorites.some(fav => fav.id === product.id);
+                const productCard = document.createElement('div');
+                productCard.className = 'product-card';
+                productCard.innerHTML = `
+                    <div class="product-image">
+                        <i class="fas fa-gem"></i>
+                    </div>
+                    <div class="product-info">
+                        <h3 class="product-title">${product.name}</h3>
+                        <p>${product.description}</p>
+                        <p class="product-price">${product.price.toLocaleString()} ₽</p>
+                        <div class="product-actions">
+                            <button class="btn btn-primary" onclick="addToCart(${product.id})">
+                                <i class="fas fa-shopping-cart"></i> В корзину
+                            </button>
+                            <button class="btn btn-outline" onclick="toggleFavorite(${product.id})" style="margin-left: 0.5rem;">
+                                <i class="fas ${isFavorite ? 'fa-heart' : 'fa-heart'}"></i>
+                            </button>
+                        </div>
+                    </div>
+                `;
+                productsGrid.appendChild(productCard);
+            });
+        }
+
+        // Добавление в корзину
+        function addToCart(productId) {
+            const product = products.find(p => p.id === productId);
+            
+            if (!product) {
+                showNotification('Товар не найден', 'error');
+                return;
+            }
+            
+            // Проверить, есть ли уже в корзине
+            const existingItem = cart.find(item => item.id === productId);
+            
+            if (existingItem) {
+                existingItem.quantity = (existingItem.quantity || 1) + 1;
+            } else {
+                cart.push({
+                    id: product.id,
+                    name: product.name,
+                    price: product.price,
+                    quantity: 1
+                });
+            }
+            
+            saveData();
+            updateUI();
+            showNotification(`${product.name} добавлен в корзину`, 'success');
+            
+            // Если находимся на странице корзины, обновить ее
+            if (document.getElementById('cart').classList.contains('active')) {
+                displayCart();
+            }
+        }
+
+        // Удаление из корзины
+        function removeFromCart(productId) {
+            cart = cart.filter(item => item.id !== productId);
+            saveData();
+            updateUI();
+            displayCart();
+            showNotification('Товар удален из корзины', 'info');
+        }
+
+        // Изменение количества товара в корзине
+        function updateCartQuantity(productId, change) {
+            const item = cart.find(item => item.id === productId);
+            if (!item) return;
+            
+            item.quantity = (item.quantity || 1) + change;
+            
+            if (item.quantity < 1) {
+                removeFromCart(productId);
+                return;
+            }
+            
+            saveData();
+            updateUI();
+            displayCart();
+        }
+
+        // Отображение корзины
+        function displayCart() {
+            const cartItems = document.getElementById('cartItems');
+            const totalItems = document.getElementById('totalItems');
+            const subtotal = document.getElementById('subtotal');
+            const shipping = document.getElementById('shipping');
+            const discount = document.getElementById('discount');
+            const totalAmount = document.getElementById('totalAmount');
+            
+            if (!cartItems) return;
+            
+            if (cart.length === 0) {
+                cartItems.innerHTML = `
+                    <div class="text-center">
+                        <i class="fas fa-shopping-cart" style="font-size: 3rem; color: var(--pastel-lavender); margin-bottom: 1rem;"></i>
+                        <h3>Корзина пуста</h3>
+                        <p>Добавьте товары из каталога</p>
+                        <button class="btn btn-primary mt-2" onclick="showSection('products')">
+                            <i class="fas fa-shopping-bag"></i> Перейти к покупкам
+                        </button>
+                    </div>
+                `;
+                if (totalItems) totalItems.textContent = '0';
+                if (subtotal) subtotal.textContent = '0 ₽';
+                if (shipping) shipping.textContent = '0 ₽';
+                if (discount) discount.textContent = '0 ₽';
+                if (totalAmount) totalAmount.textContent = '0 ₽';
+                return;
+            }
+            
+            cartItems.innerHTML = '';
+            let itemsTotal = 0;
+            let itemsCount = 0;
+            
+            cart.forEach(item => {
+                const itemTotal = item.price * (item.quantity || 1);
+                itemsTotal += itemTotal;
+                itemsCount += (item.quantity || 1);
+                
+                const cartItem = document.createElement('div');
+                cartItem.className = 'cart-item';
+                cartItem.innerHTML = `
+                    <div>
+                        <h4>${item.name}</h4>
+                        <p>${item.price.toLocaleString()} ₽ × ${item.quantity || 1}</p>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 1rem;">
+                        <div style="display: flex; align-items: center; gap: 0.5rem;">
+                            <button class="btn btn-outline" style="padding: 0.25rem 0.5rem;" onclick="updateCartQuantity(${item.id}, -1)">-</button>
+                            <span>${item.quantity || 1}</span>
+                            <button class="btn btn-outline" style="padding: 0.25rem 0.5rem;" onclick="updateCartQuantity(${item.id}, 1)">+</button>
+                        </div>
+                        <p><strong>${itemTotal.toLocaleString()} ₽</strong></p>
+                        <button class="btn btn-outline" onclick="removeFromCart(${item.id})">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                `;
+                cartItems.appendChild(cartItem);
+            });
+            
+            // Расчет итогов
+            const shippingCost = itemsTotal > 5000 ? 0 : 500;
+            const discountAmount = 0; // Можно добавить логику скидок
+            const total = itemsTotal + shippingCost - discountAmount;
+            
+            if (totalItems) totalItems.textContent = itemsCount;
+            if (subtotal) subtotal.textContent = itemsTotal.toLocaleString() + ' ₽';
+            if (shipping) shipping.textContent = shippingCost.toLocaleString() + ' ₽';
+            if (discount) discount.textContent = discountAmount.toLocaleString() + ' ₽';
+            if (totalAmount) totalAmount.textContent = total.toLocaleString() + ' ₽';
+        }
+
+        // Применение промокода
+        function applyPromoCode() {
+            const promoCode = document.getElementById('promoCode').value.trim();
+            if (!promoCode) {
+                showNotification('Введите промокод', 'warning');
+                return;
+            }
+            
+            // Простая проверка промокода
+            if (promoCode === 'ELEGANCE10') {
+                showNotification('Промокод применен! Скидка 10%', 'success');
+                // Здесь можно добавить логику применения скидки
+            } else {
+                showNotification('Неверный промокод', 'error');
+            }
+        }
+
+        // Оформление заказа
+        function checkout() {
+            if (!currentUser) {
+                showNotification('Войдите в систему для оформления заказа', 'error');
+                showModal('loginModal');
+                return;
+            }
+            
+            if (cart.length === 0) {
+                showNotification('Корзина пуста', 'warning');
+                return;
+            }
+            
+            // Создание заказа
+            const order = {
+                id: Date.now(),
+                userId: currentUser.id,
+                items: [...cart],
+                total: calculateCartTotal(),
+                date: new Date().toISOString(),
+                status: 'processing',
+                shippingAddress: currentUser.address || 'Не указан'
+            };
+            
+            orders.push(order);
+            
+            // Очистка корзины
+            cart = [];
+            
+            saveData();
+            updateUI();
+            displayCart();
+            
+            showNotification('Заказ успешно оформлен! Номер заказа: ' + order.id, 'success');
+            showSection('dashboard');
+            showDashboardTab('orders');
+        }
+
+        // Расчет общей суммы в корзине
+        function calculateCartTotal() {
+            let total = 0;
+            cart.forEach(item => {
+                total += item.price * (item.quantity || 1);
+            });
+            return total;
+        }
+
+        // Добавление/удаление из избранного
+        function toggleFavorite(productId) {
+            const product = products.find(p => p.id === productId);
+            if (!product) return;
+            
+            const existingIndex = favorites.findIndex(fav => fav.id === productId);
+            
+            if (existingIndex !== -1) {
+                // Удалить из избранного
+                favorites.splice(existingIndex, 1);
+                showNotification(`${product.name} удален из избранного`, 'info');
+            } else {
+                // Добавить в избранное
+                favorites.push({
+                    id: product.id,
+                    name: product.name,
+                    price: product.price,
+                    category: product.category
+                });
+                showNotification(`${product.name} добавлен в избранное`, 'success');
+            }
+            
+            saveData();
+            updateUI();
+            
+            // Обновить отображение, если находимся на странице товаров
+            if (document.getElementById('products').classList.contains('active')) {
+                displayProducts();
+            }
+            
+            // Обновить отображение, если находимся в избранном
+            if (document.getElementById('favoritesTab')?.classList.contains('active')) {
+                displayFavorites();
+            }
+        }
+
+        // Отображение избранного
+        function displayFavorites() {
+            const favoritesGrid = document.getElementById('favoritesGrid');
+            if (!favoritesGrid) return;
+            
+            if (favorites.length === 0) {
+                favoritesGrid.innerHTML = `
+                    <div class="text-center">
+                        <i class="fas fa-heart" style="font-size: 3rem; color: var(--pastel-pink); margin-bottom: 1rem;"></i>
+                        <h4>Список избранного пуст</h4>
+                        <p>Добавляйте товары в избранное, нажимая на сердечко</p>
+                        <button class="btn btn-primary mt-2" onclick="showSection('products')">
+                            <i class="fas fa-shopping-bag"></i> Перейти к покупкам
+                        </button>
+                    </div>
+                `;
+                return;
+            }
+            
+            favoritesGrid.innerHTML = '';
+            favoritesGrid.className = 'products-grid';
+            
+            favorites.forEach(product => {
+                const productCard = document.createElement('div');
+                productCard.className = 'product-card';
+                productCard.innerHTML = `
+                    <div class="product-image">
+                        <i class="fas fa-gem"></i>
+                    </div>
+                    <div class="product-info">
+                        <h3 class="product-title">${product.name}</h3>
+                        <p class="product-price">${product.price.toLocaleString()} ₽</p>
+                        <div class="product-actions">
+                            <button class="btn btn-primary" onclick="addToCart(${product.id})">
+                                <i class="fas fa-shopping-cart"></i> В корзину
+                            </button>
+                            <button class="btn btn-outline" onclick="toggleFavorite(${product.id})" style="margin-left: 0.5rem;">
+                                <i class="fas fa-heart"></i>
+                            </button>
+                        </div>
+                    </div>
+                `;
+                favoritesGrid.appendChild(productCard);
+            });
+        }
+
+        // Очистка избранного
+        function clearFavorites() {
+            if (favorites.length === 0) {
+                showNotification('Избранное уже пусто', 'info');
+                return;
+            }
+            
+            if (confirm('Вы уверены, что хотите очистить избранное?')) {
+                favorites = [];
+                saveData();
+                updateUI();
+                displayFavorites();
+                showNotification('Избранное очищено', 'success');
+            }
+        }
+
+        // Отображение заказов
+        function displayOrders() {
+            const ordersTableBody = document.getElementById('ordersTableBody');
+            if (!ordersTableBody) return;
+            
+            if (!currentUser) {
+                ordersTableBody.innerHTML = `
+                    <tr>
+                        <td colspan="5" class="text-center">Войдите в систему для просмотра заказов</td>
+                    </tr>
+                `;
+                return;
+            }
+            
+            const userOrders = orders.filter(order => order.userId === currentUser.id);
+            
+            if (userOrders.length === 0) {
+                ordersTableBody.innerHTML = `
+                    <tr>
+                        <td colspan="5" class="text-center">У вас пока нет заказов</td>
+                    </tr>
+                `;
+                return;
+            }
+            
+            ordersTableBody.innerHTML = '';
+            userOrders.forEach(order => {
+                const row = document.createElement('tr');
+                const orderDate = new Date(order.date);
+                const formattedDate = orderDate.toLocaleDateString('ru-RU');
+                const itemsCount = order.items.reduce((sum, item) => sum + (item.quantity || 1), 0);
+                
+                row.innerHTML = `
+                    <td>#${order.id}</td>
+                    <td>${formattedDate}</td>
+                    <td>${itemsCount} шт.</td>
+                    <td>${order.total.toLocaleString()} ₽</td>
+                    <td><span class="order-status ${order.status}">${getOrderStatusText(order.status)}</span></td>
+                `;
+                ordersTableBody.appendChild(row);
+            });
+        }
+
+        // Обновление заказов
+        function refreshOrders() {
+            displayOrders();
+            showNotification('Список заказов обновлен', 'info');
+        }
+
+        // Получение текста статуса заказа
+        function getOrderStatusText(status) {
+            const statuses = {
+                'processing': 'В обработке',
+                'shipped': 'Отправлен',
+                'delivered': 'Доставлен',
+                'cancelled': 'Отменен'
+            };
+            return statuses[status] || status;
+        }
+
+        // Обновление статистики
+        function updateStatistics() {
+            if (!currentUser) return;
+            
+            const period = document.getElementById('statPeriod').value;
+            const userOrders = orders.filter(order => order.userId === currentUser.id);
+            
+            // Фильтрация по периоду
+            let filteredOrders = userOrders;
+            const now = new Date();
+            
+            if (period === 'month') {
+                const monthAgo = new Date(now.setMonth(now.getMonth() - 1));
+                filteredOrders = userOrders.filter(order => new Date(order.date) >= monthAgo);
+            } else if (period === 'quarter') {
+                const quarterAgo = new Date(now.setMonth(now.getMonth() - 3));
+                filteredOrders = userOrders.filter(order => new Date(order.date) >= quarterAgo);
+            } else if (period === 'year') {
+                const yearAgo = new Date(now.setFullYear(now.getFullYear() - 1));
+                filteredOrders = userOrders.filter(order => new Date(order.date) >= yearAgo);
+            }
+            
+            // Обновление статистики
+            const totalOrders = filteredOrders.length;
+            const totalSpent = filteredOrders.reduce((sum, order) => sum + order.total, 0);
+            const avgOrder = totalOrders > 0 ? totalSpent / totalOrders : 0;
+            
+            document.getElementById('totalOrdersStat').textContent = totalOrders;
+            document.getElementById('totalSpentStat').textContent = totalSpent.toLocaleString() + ' ₽';
+            document.getElementById('avgOrderStat').textContent = avgOrder.toLocaleString('ru-RU', { maximumFractionDigits: 0 }) + ' ₽';
+            
+            // Создание графика
+            createCategoryChart(filteredOrders);
+        }
+
+        // Создание графика по категориям
+        function createCategoryChart(ordersData) {
+            const ctx = document.getElementById('categoryChart');
+            if (!ctx) return;
+            
+            // Сбор данных по категориям
+            const categoryData = {};
+            ordersData.forEach(order => {
+                order.items.forEach(item => {
+                    // Здесь нужна логика определения категории товара
+                    // Для примера используем фиктивные категории
+                    const category = item.category || 'other';
+                    categoryData[category] = (categoryData[category] || 0) + 1;
+                });
+            });
+            
+            // Уничтожение предыдущего графика
+            if (categoryChart) {
+                categoryChart.destroy();
+            }
+            
+            // Создание нового графика
+            categoryChart = new Chart(ctx, {
+                type: 'pie',
+                data: {
+                    labels: Object.keys(categoryData),
+                    datasets: [{
+                        data: Object.values(categoryData),
+                        backgroundColor: [
+                            '#FFD6E7',
+                            '#E2D1F9',
+                            '#D1F7E9',
+                            '#D1E8FF',
+                            '#FFF3CD',
+                            '#E6D1FF'
+                        ]
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            position: 'bottom'
+                        }
+                    }
+                }
+            });
+        }
+
+        // Инициализация карты
+        function initMap() {
+            if (map) return;
+            
+            map = L.map('map').setView([55.7558, 37.6173], 12);
+            
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '© OpenStreetMap contributors'
+            }).addTo(map);
+            
+            // Добавление маркеров магазинов
+            const stores = [
+                { name: 'Elegance Москва', lat: 55.7558, lng: 37.6173, address: 'ул. Примерная, 10' },
+                { name: 'Elegance Арбат', lat: 55.7520, lng: 37.5925, address: 'ул. Арбат, 25' },
+                { name: 'Elegance Ходынка', lat: 55.7875, lng: 37.5405, address: 'Ходынский бульвар, 4' },
+                { name: 'Elegance СПб', lat: 59.9343, lng: 30.3351, address: 'Невский пр., 45' }
+            ];
+            
+            stores.forEach(store => {
+                const marker = L.marker([store.lat, store.lng]).addTo(map);
+                marker.bindPopup(`
+                    <strong>${store.name}</strong><br>
+                    ${store.address}
+                `);
+                markers.push(marker);
+            });
+        }
+
+        // Отображение магазинов
+        function displayStores() {
+            const storeCards = document.getElementById('storeCards');
+            if (!storeCards) return;
+            
+            const stores = [
+                { name: 'Elegance Москва', address: 'ул. Примерная, 10', hours: '10:00 - 22:00', phone: '+7 (999) 123-45-67' },
+                { name: 'Elegance Арбат', address: 'ул. Арбат, 25', hours: '10:00 - 23:00', phone: '+7 (999) 123-45-68' },
+                { name: 'Elegance Ходынка', address: 'Ходынский бульвар, 4', hours: '10:00 - 21:00', phone: '+7 (999) 123-45-69' },
+                { name: 'Elegance СПб', address: 'Невский пр., 45', hours: '10:00 - 22:00', phone: '+7 (812) 123-45-67' }
+            ];
+            
+            storeCards.innerHTML = '';
+            stores.forEach(store => {
+                const storeCard = document.createElement('div');
+                storeCard.className = 'store-card';
+                storeCard.innerHTML = `
+                    <h4>${store.name}</h4>
+                    <p><i class="fas fa-map-marker-alt"></i> ${store.address}</p>
+                    <p><i class="fas fa-clock"></i> ${store.hours}</p>
+                    <p><i class="fas fa-phone"></i> ${store.phone}</p>
+                `;
+                storeCards.appendChild(storeCard);
+            });
+        }
+
+        // Определение местоположения пользователя
+        function locateUser() {
+            if (!navigator.geolocation) {
+                showNotification('Геолокация не поддерживается вашим браузером', 'error');
+                return;
+            }
+            
+            navigator.geolocation.getCurrentPosition(
+                position => {
+                    const { latitude, longitude } = position.coords;
+                    map.setView([latitude, longitude], 13);
+                    L.marker([latitude, longitude])
+                        .addTo(map)
+                        .bindPopup('Вы здесь')
+                        .openPopup();
+                    showNotification('Ваше местоположение отмечено на карте', 'success');
+                },
+                error => {
+                    showNotification('Не удалось определить местоположение', 'error');
+                    console.error('Geolocation error:', error);
+                }
+            );
+        }
+
+        // Переключение видимости пароля
+        function togglePasswordVisibility(inputId, icon) {
+            const input = document.getElementById(inputId);
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.classList.remove('fa-eye');
+                icon.classList.add('fa-eye-slash');
+            } else {
+                input.type = 'password';
+                icon.classList.remove('fa-eye-slash');
+                icon.classList.add('fa-eye');
+            }
+        }
+
+        // Отображение дашборда
+        function displayDashboard() {
+            if (!currentUser) {
+                showNotification('Войдите в систему для доступа к личному кабинету', 'warning');
+                showModal('loginModal');
+                showSection('home');
+                return;
+            }
+            
+            showDashboardTab('profile');
+        }
+
+        // Экспорт для отладки
+        window.App = {
+            showSection,
+            showModal,
+            hideModal,
+            addToCart,
+            removeFromCart,
+            updateCartQuantity,
+            login,
+            register,
+            logout,
+            saveProfile,
+            showNotification,
+            toggleFavorite,
+            checkout,
+            applyPromoCode,
+            filterProducts
+        };
+
+        console.log('Приложение Elegance инициализировано');
+    </script>
+</body>
+</html>
